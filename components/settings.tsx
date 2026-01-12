@@ -15,13 +15,16 @@ import {
   BackendUrl, RemoteConfig
 } from '@/app/actions';
 
+import { Skeleton } from '@/components/ui/skeleton';
+
 interface SettingsProps {
   backends: BackendUrl[];
   remoteConfigs: RemoteConfig[];
   onUpdate: () => void;
+  isLoading?: boolean;
 }
 
-export function Settings({ backends, remoteConfigs, onUpdate }: SettingsProps) {
+export function Settings({ backends, remoteConfigs, onUpdate, isLoading = false }: SettingsProps) {
   const t = useTranslations('Settings');
 
   return (
@@ -47,6 +50,7 @@ export function Settings({ backends, remoteConfigs, onUpdate }: SettingsProps) {
         onUpdate={onUpdate}
         placeholderName={t('backend.placeholderName')}
         placeholderUrl={t('backend.placeholderUrl')}
+        isLoading={isLoading}
       />
 
       <ResourceManager
@@ -70,6 +74,7 @@ export function Settings({ backends, remoteConfigs, onUpdate }: SettingsProps) {
         onUpdate={onUpdate}
         placeholderName={t('remoteConfig.placeholderName')}
         placeholderUrl={t('remoteConfig.placeholderUrl')}
+        isLoading={isLoading}
       />
     </div>
   );
@@ -84,12 +89,14 @@ interface ResourceManagerProps {
   onUpdate: () => void;
   placeholderName: string;
   placeholderUrl: string;
+  isLoading?: boolean;
 }
 
 function ResourceManager({
   title, description, items,
   onAdd, onDelete, onUpdate,
-  placeholderName, placeholderUrl
+  placeholderName, placeholderUrl,
+  isLoading = false
 }: ResourceManagerProps) {
   const t = useTranslations('Settings');
   const [isOpen, setIsOpen] = useState(false);
@@ -168,26 +175,41 @@ function ResourceManager({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {items.length === 0 && (
+            {isLoading ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <TableRow key={i}>
+                  <TableCell>
+                    <Skeleton className="h-4 w-[150px]" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-4 w-[250px]" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-8 w-8 rounded-full" />
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : items.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={3} className="text-center text-muted-foreground">
                   {t('table.empty')}
                 </TableCell>
               </TableRow>
+            ) : (
+              items.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell className="font-medium">{item.name}</TableCell>
+                  <TableCell className="max-w-[300px] truncate" title={item.url}>
+                    {item.url}
+                  </TableCell>
+                  <TableCell>
+                    <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)}>
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
             )}
-            {items.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell className="font-medium">{item.name}</TableCell>
-                <TableCell className="max-w-[300px] truncate" title={item.url}>
-                  {item.url}
-                </TableCell>
-                <TableCell>
-                  <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)}>
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
           </TableBody>
         </Table>
       </CardContent>

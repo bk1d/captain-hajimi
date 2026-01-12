@@ -37,8 +37,10 @@ export function MainView({
   const [configs, setConfigs] = useState<GeneratedConfig[]>(initialConfigs);
   const [backends, setBackends] = useState<BackendUrl[]>(initialBackends);
   const [remoteConfigs, setRemoteConfigs] = useState<RemoteConfig[]>(initialRemoteConfigs);
+  const [loading, setLoading] = useState(false);
 
   const refreshData = async () => {
+    setLoading(true);
     try {
       const [subs, confs, backs, remotes] = await Promise.all([
         getSubscriptions(),
@@ -52,6 +54,8 @@ export function MainView({
       setRemoteConfigs(remotes);
     } catch (e) {
       console.error(e);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -75,11 +79,11 @@ export function MainView({
         </TabsContent>
 
         <TabsContent value="subscriptions" className="space-y-4">
-          <SubscriptionList subscriptions={subscriptions} onUpdate={refreshData} />
+          <SubscriptionList subscriptions={subscriptions} onUpdate={refreshData} isLoading={loading} />
         </TabsContent>
 
         <TabsContent value="history" className="space-y-4">
-          <GeneratedList configs={configs} onUpdate={refreshData} />
+          <GeneratedList configs={configs} onUpdate={refreshData} isLoading={loading} />
         </TabsContent>
 
         <TabsContent value="settings" className="space-y-4">
@@ -87,6 +91,7 @@ export function MainView({
             backends={backends}
             remoteConfigs={remoteConfigs}
             onUpdate={refreshData}
+            isLoading={loading}
           />
         </TabsContent>
       </Tabs>
