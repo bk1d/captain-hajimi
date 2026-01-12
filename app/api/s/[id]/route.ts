@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { createAdminClient } from '@/utils/supabase/admin';
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
@@ -9,6 +9,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     if (!id || !key) {
         return new NextResponse('Missing ID or Key', { status: 400 });
     }
+
+    const supabase = createAdminClient();
 
     // 1. Verify Token
     const { data: record, error: dbError } = await supabase
