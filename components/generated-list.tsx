@@ -206,7 +206,8 @@ export function GeneratedList({ configs, onUpdate, isLoading = false }: Generate
                     </div>
                   </TableCell>
                 </TableRow>
-              ))}
+              ))
+            )}
           </TableBody>
         </Table>
       </CardContent>
