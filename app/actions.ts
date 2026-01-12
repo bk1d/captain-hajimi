@@ -270,54 +270,77 @@ export async function generateAndSaveConfig(params: GenerateConfigParams) {
 
     // 2. Fetch Content
     try {
-        const res = await fetch(finalUrl, {
-            headers: {
-                'User-Agent':
-                    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            },
-        });
-        if (!res.ok) {
-            const text = await res.text();
-            throw new Error(`Subconverter failed: ${res.status} ${text}`);
-        }
-        const content = await res.text();
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 120000); // 120 seconds timeout
 
-        // 3. Upload to Storage
-        // Generate a unique token and filename
-        const token = nanoid(10); // Short token for URL
-        const fileExt = target === 'clash' ? 'yaml' : 'txt';
-        const storageFileName = `${nanoid()}.${fileExt}`;
-
-        const { error: uploadError } = await supabase.storage
-            .from('configs')
-            .upload(storageFileName, content, {
-                contentType: 'text/plain; charset=utf-8',
-                upsert: false,
-            });
-
-        if (uploadError) throw new Error(`Upload failed: ${uploadError.message}`);
-
-        // 4. Save Record
-        const { data: record, error: dbError } = await supabase
-            .from('generated_configs')
-            .insert([
-                {
-                    token,
-                    filename: storageFileName,
-                    target,
-                    params,
-                    name: name || undefined,
-                    user_id: user.id,
+        try {
+            const res = await fetch(finalUrl, {
+                headers: {
+                    'User-Agent':
+                        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                 },
-            ])
-            .select()
-            .single();
+                signal: controller.signal,
+            });
+            clearTimeout(timeoutId);
 
-        if (dbError) throw new Error(`DB Save failed: ${dbError.message}`);
+            if (!res.ok) {
+                const text = await res.text();
+                throw new Error(`Backend Error (${res.status}): ${text.slice(0, 100)}`);
+            }
+            const content = await res.text();
 
-        return record;
+            // 3. Upload to Storage
+            // Generate a unique token and filename
+            const token = nanoid(10); // Short token for URL
+            const fileExt = target === 'clash' ? 'yaml' : 'txt';
+            const storageFileName = `${nanoid()}.${fileExt}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from('configs')
+                .upload(storageFileName, content, {
+                    contentType: 'text/plain; charset=utf-8',
+                    upsert: false,
+                });
+
+            if (uploadError) throw new Error(`Upload failed: ${uploadError.message}`);
+
+            // 4. Save Record
+            const { data: record, error: dbError } = await supabase
+                .from('generated_configs')
+                .insert([
+                    {
+                        token,
+                        filename: storageFileName,
+                        target,
+                        params,
+                        name: name || undefined,
+                        user_id: user.id,
+                    },
+                ])
+                .select()
+                .single();
+
+            if (dbError) throw new Error(`DB Save failed: ${dbError.message}`);
+
+            return record;
+        } catch (fetchError) {
+            clearTimeout(timeoutId);
+            if (fetchError instanceof Error) {
+                if (fetchError.name === 'AbortError') {
+                    throw new Error(
+                        'Backend Connection Timeout: The request took too long to respond. Please try a different backend.'
+                    );
+                }
+                if (fetchError.message.includes('fetch failed')) {
+                    throw new Error(
+                        `Backend Connection Failed: Unable to reach ${cleanBackend}. Please check the URL or try a different backend.`
+                    );
+                }
+            }
+            throw fetchError;
+        }
     } catch (e) {
-        console.error(e);
+        console.error('Generate Config Error:', e);
         throw new Error(e instanceof Error ? e.message : String(e));
     }
 }
