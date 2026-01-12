@@ -1,0 +1,215 @@
+{
+  "auth": {
+    "login": {
+      "title": "登录",
+      "email": "邮箱",
+      "password": "密码",
+      "submit": "登录",
+      "noAccount": "没有账号？去注册",
+      "description": "请输入邮箱和密码登录",
+      "emailPlaceholder": "m@example.com",
+      "loading": "加载中…"
+    },
+    "register": {
+      "title": "注册",
+      "email": "邮箱",
+      "password": "密码",
+      "confirmPassword": "确认密码",
+      "submit": "注册",
+      "hasAccount": "已有账号？去登录",
+      "disabled": "注册功能已关闭",
+      "success": "注册成功！",
+      "checkEmail": "请检查您的邮箱以确认账号。确认后即可登录。",
+      "emailPlaceholder": "m@example.com",
+      "loading": "加载中…",
+      "passwordMismatch": "两次密码不一致"
+    },
+    "admin": {
+      "title": "用户管理",
+      "addUser": "添加用户",
+      "email": "邮箱",
+      "password": "密码",
+      "newPassword": "新密码",
+      "role": "角色",
+      "createdAt": "创建时间",
+      "actions": "操作",
+      "delete": "删除",
+      "changePassword": "修改密码",
+      "toggleRegistration": "允许注册",
+      "registrationEnabled": "注册功能已开启",
+      "registrationDisabled": "注册功能已关闭",
+      "confirmDelete": "确定要删除该用户吗？",
+      "userCreated": "用户已创建",
+      "userDeleted": "用户已删除",
+      "passwordUpdated": "密码已更新"
+    },
+    "profile": {
+      "title": "个人中心",
+      "changePassword": "修改密码",
+      "oldPassword": "旧密码",
+      "newPassword": "新密码",
+      "confirmPassword": "确认新密码",
+      "save": "保存",
+      "saving": "保存中…",
+      "passwordMismatch": "两次密码不一致",
+      "passwordUpdated": "密码已更新"
+    },
+    "signout": "退出登录",
+    "error": "发生错误"
+  },
+  "Main": {
+    "title": "Captain Hajimi",
+    "subtitle": "管理订阅并生成可持久化的配置。",
+    "tabs": {
+      "convert": "转换",
+      "subscriptions": "订阅源",
+      "history": "历史记录",
+      "settings": "设置"
+    },
+    "language": {
+      "label": "语言",
+      "zhCN": "简体中文",
+      "en": "English"
+    }
+  },
+  "Converter": {
+    "selectSourcesTitle": "选择来源",
+    "selectSourcesDesc": "选择需要合并的订阅",
+    "noSubscriptions": "暂无订阅源。",
+    "configurationTitle": "配置",
+    "configurationNameLabel": "配置名称（可选）",
+    "configurationNamePlaceholder": "例如：我的 iPhone 配置",
+    "targetPlatformLabel": "目标平台",
+    "backendUrlLabel": "Subconverter 后端地址",
+    "backendDocLink": "文档",
+    "backendSelectPlaceholder": "选择后端",
+    "backendDefaultPrefix": "默认",
+    "backendCustomPlaceholder": "或输入自定义后端 URL",
+    "remoteConfigLabel": "远程配置（规则提供者）",
+    "remoteConfigDocLink": "ACL4SSR 参考",
+    "remoteConfigSelectPlaceholder": "选择配置",
+    "remoteConfigDefaultLabel": "默认（ACL4SSR Mini）",
+    "remoteConfigCustomPlaceholder": "或输入自定义配置 URL",
+    "advancedTitle": "高级参数",
+    "includeLabel": "包含节点（正则）",
+    "includeTooltip": "仅保留匹配正则表达式的节点",
+    "excludeLabel": "排除节点（正则）",
+    "excludeTooltip": "排除匹配正则表达式的节点",
+    "generateButton": "生成订阅",
+    "generatedLinkTitle": "生成链接",
+    "generatedLinkHint": "在客户端使用此链接，需要携带 key 参数访问。",
+    "toast": {
+      "selectAtLeastOne": "请至少选择一个订阅源",
+      "generatedSuccess": "配置生成成功！",
+      "copied": "已复制"
+    },
+    "advanced": {
+      "emoji": {
+        "label": "Emoji",
+        "tooltip": "在节点名称前加入国旗 Emoji"
+      },
+      "udp": {
+        "label": "UDP 支持",
+        "tooltip": "启用 UDP"
+      },
+      "tfo": {
+        "label": "TCP Fast Open",
+        "tooltip": "启用 TCP Fast Open"
+      },
+      "scv": {
+        "label": "跳过证书验证",
+        "tooltip": "跳过证书验证"
+      },
+      "expand": {
+        "label": "展开规则集合",
+        "tooltip": "展开规则集合"
+      },
+      "custom": {
+        "label": "自定义参数",
+        "docLink": "文档",
+        "keyPlaceholder": "参数名 (Key)",
+        "valuePlaceholder": "参数值 (Value)",
+        "add": "添加参数"
+      }
+    }
+  },
+  "Subscriptions": {
+    "title": "订阅源",
+    "addSource": "添加订阅源",
+    "addDialogTitle": "添加订阅源",
+    "nameLabel": "名称",
+    "urlLabel": "URL",
+    "save": "保存",
+    "adding": "添加中…",
+    "table": {
+      "name": "名称",
+      "url": "URL",
+      "empty": "暂无订阅源，先添加一个开始使用。"
+    },
+    "confirmDelete": "确定要删除吗？",
+    "toast": {
+      "added": "订阅源已添加",
+      "deleted": "订阅源已删除"
+    }
+  },
+  "Settings": {
+    "backend": {
+      "title": "Subconverter 后端地址",
+      "description": "管理 Subconverter 后端服务",
+      "docLink": "文档",
+      "placeholderName": "我的后端",
+      "placeholderUrl": "https://api.example.com"
+    },
+    "remoteConfig": {
+      "title": "远程配置",
+      "description": "管理远程配置文件（规则提供者）",
+      "docLink": "ACL4SSR 文档",
+      "placeholderName": "ACL4SSR Mini",
+      "placeholderUrl": "https://raw.githubusercontent.com/..."
+    },
+    "add": "添加",
+    "addNewItem": "添加新条目",
+    "nameLabel": "名称",
+    "urlLabel": "URL",
+    "save": "保存",
+    "adding": "添加中…",
+    "table": {
+      "name": "名称",
+      "url": "URL",
+      "empty": "暂无条目。"
+    },
+    "confirmDelete": "确定要删除吗？",
+    "toast": {
+      "added": "已添加",
+      "deleted": "已删除"
+    }
+  },
+  "History": {
+    "title": "历史记录",
+    "table": {
+      "name": "名称",
+      "target": "目标",
+      "createdAt": "创建时间",
+      "link": "链接",
+      "actions": "操作",
+      "empty": "暂无生成记录。"
+    },
+    "untitled": "未命名",
+    "copied": "已复制",
+    "confirmDelete": "确定要删除此配置吗？该操作无法撤销。",
+    "deleted": "配置已删除",
+    "details": {
+      "title": "配置详情",
+      "createdAtPrefix": "创建于",
+      "target": "目标",
+      "backend": "后端",
+      "remoteConfig": "远程配置（规则提供者）",
+      "remoteConfigDefault": "默认（无）",
+      "sources": "来源订阅",
+      "advanced": "高级参数",
+      "customParams": "自定义参数",
+      "include": "包含",
+      "exclude": "排除"
+    }
+  }
+}
