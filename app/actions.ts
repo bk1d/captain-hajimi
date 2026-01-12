@@ -1,6 +1,6 @@
 'use server';
 
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/server';
 import { nanoid } from 'nanoid';
 
 export type Subscription = {
@@ -59,6 +59,7 @@ export type RemoteConfig = {
 
 // Subscriptions
 export async function getSubscriptions() {
+    const supabase = await createClient();
     const { data, error } = await supabase
         .from('subscriptions')
         .select('*')
@@ -69,9 +70,18 @@ export async function getSubscriptions() {
 }
 
 export async function addSubscription(name: string, url: string) {
+    const supabase = await createClient();
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+        throw new Error('Unauthorized');
+    }
+
     const { data, error } = await supabase
         .from('subscriptions')
-        .insert([{ name, url, enabled: true }])
+        .insert([{ name, url, enabled: true, user_id: user.id }])
         .select();
 
     if (error) throw new Error(error.message);
@@ -79,6 +89,7 @@ export async function addSubscription(name: string, url: string) {
 }
 
 export async function deleteSubscription(id: string) {
+    const supabase = await createClient();
     const { error } = await supabase.from('subscriptions').delete().match({ id });
 
     if (error) throw new Error(error.message);
@@ -86,6 +97,7 @@ export async function deleteSubscription(id: string) {
 
 // Backend URLs
 export async function getBackendUrls() {
+    const supabase = await createClient();
     const { data, error } = await supabase
         .from('backend_urls')
         .select('*')
@@ -96,9 +108,18 @@ export async function getBackendUrls() {
 }
 
 export async function addBackendUrl(name: string, url: string) {
+    const supabase = await createClient();
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+        throw new Error('Unauthorized');
+    }
+
     const { data, error } = await supabase
         .from('backend_urls')
-        .insert([{ name, url, enabled: true }])
+        .insert([{ name, url, enabled: true, user_id: user.id }])
         .select();
 
     if (error) throw new Error(error.message);
@@ -106,6 +127,7 @@ export async function addBackendUrl(name: string, url: string) {
 }
 
 export async function deleteBackendUrl(id: string) {
+    const supabase = await createClient();
     const { error } = await supabase.from('backend_urls').delete().match({ id });
 
     if (error) throw new Error(error.message);
@@ -113,6 +135,7 @@ export async function deleteBackendUrl(id: string) {
 
 // Remote Configs
 export async function getRemoteConfigs() {
+    const supabase = await createClient();
     const { data, error } = await supabase
         .from('remote_configs')
         .select('*')
@@ -123,9 +146,18 @@ export async function getRemoteConfigs() {
 }
 
 export async function addRemoteConfig(name: string, url: string) {
+    const supabase = await createClient();
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+        throw new Error('Unauthorized');
+    }
+
     const { data, error } = await supabase
         .from('remote_configs')
-        .insert([{ name, url, enabled: true }])
+        .insert([{ name, url, enabled: true, user_id: user.id }])
         .select();
 
     if (error) throw new Error(error.message);
@@ -133,6 +165,7 @@ export async function addRemoteConfig(name: string, url: string) {
 }
 
 export async function deleteRemoteConfig(id: string) {
+    const supabase = await createClient();
     const { error } = await supabase.from('remote_configs').delete().match({ id });
 
     if (error) throw new Error(error.message);
@@ -140,6 +173,7 @@ export async function deleteRemoteConfig(id: string) {
 
 // Generated Configs
 export async function getGeneratedConfigs() {
+    const supabase = await createClient();
     const { data, error } = await supabase
         .from('generated_configs')
         .select('*')
@@ -150,6 +184,7 @@ export async function getGeneratedConfigs() {
 }
 
 export async function deleteGeneratedConfig(id: string, filename: string) {
+    const supabase = await createClient();
     // 1. Delete from Storage
     const { error: storageError } = await supabase.storage.from('configs').remove([filename]);
 
@@ -162,6 +197,15 @@ export async function deleteGeneratedConfig(id: string, filename: string) {
 }
 
 export async function generateAndSaveConfig(params: GenerateConfigParams) {
+    const supabase = await createClient();
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+        throw new Error('Unauthorized');
+    }
+
     // 1. Construct Subconverter URL
     // Format: backend/sub?target=...&url=...
     const {
@@ -263,6 +307,7 @@ export async function generateAndSaveConfig(params: GenerateConfigParams) {
                     target,
                     params,
                     name: name || undefined,
+                    user_id: user.id,
                 },
             ])
             .select()
