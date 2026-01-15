@@ -3,9 +3,11 @@ create extension if not exists "uuid-ossp";
 create table if not exists public.subscriptions (
   id uuid default uuid_generate_v4() primary key,
   name text not null,
-  url text not null,
+  url text,
+  content text,
   enabled boolean default true,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  constraint at_least_one_source check (url is not null or content is not null)
 );
 
 create table if not exists public.generated_configs (

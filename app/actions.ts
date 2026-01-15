@@ -2,11 +2,13 @@
 
 import { createClient } from '@/utils/supabase/server';
 import { nanoid } from 'nanoid';
+import { headers } from 'next/headers';
 
 export type Subscription = {
     id: string;
     name: string;
-    url: string;
+    url: string | null;
+    content?: string;
     enabled: boolean;
     created_at: string;
 };
@@ -69,7 +71,7 @@ export async function getSubscriptions() {
     return data as Subscription[];
 }
 
-export async function addSubscription(name: string, url: string) {
+export async function addSubscription(name: string, url: string, content?: string) {
     const supabase = await createClient();
     const {
         data: { user },
@@ -79,13 +81,33 @@ export async function addSubscription(name: string, url: string) {
         throw new Error('Unauthorized');
     }
 
-    const { data, error } = await supabase
-        .from('subscriptions')
-        .insert([{ name, url, enabled: true, user_id: user.id }])
-        .select();
+    const insertData: any = { name, enabled: true, user_id: user.id };
+    if (url) insertData.url = url;
+    if (content) insertData.content = content;
+
+    const { data, error } = await supabase.from('subscriptions').insert([insertData]).select();
 
     if (error) throw new Error(error.message);
-    return data[0];
+
+    const record = data[0];
+
+    // If content is provided, generate and update URL
+    if (content && record) {
+        const headerList = await headers();
+        const host = headerList.get('host');
+        const protocol = headerList.get('x-forwarded-proto') || 'http';
+        const generatedUrl = `${protocol}://${host}/api/raw/${record.id}`;
+
+        const { error: updateError } = await supabase
+            .from('subscriptions')
+            .update({ url: generatedUrl })
+            .eq('id', record.id);
+
+        if (updateError) throw new Error(updateError.message);
+        record.url = generatedUrl;
+    }
+
+    return record;
 }
 
 export async function deleteSubscription(id: string) {

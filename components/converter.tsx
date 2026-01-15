@@ -97,7 +97,8 @@ export function Converter({ subscriptions, backends, remoteConfigs, onConfigGene
     try {
       const selectedUrls = subscriptions
         .filter(s => selectedSubs.includes(s.id))
-        .map(s => s.url);
+        .map(s => s.url)
+        .filter((url): url is string => !!url);
 
       const customParamsObj: Record<string, string> = {};
       customParams.forEach(p => {

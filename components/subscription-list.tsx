@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -23,17 +25,24 @@ export function SubscriptionList({ subscriptions, onUpdate, isLoading = false }:
   const [isOpen, setIsOpen] = useState(false);
   const [newName, setNewName] = useState('');
   const [newUrl, setNewUrl] = useState('');
+  const [content, setContent] = useState('');
+  const [type, setType] = useState<'url' | 'content'>('url');
   const [loading, setLoading] = useState(false);
 
   const handleAdd = async () => {
-    if (!newName || !newUrl) return;
+    if (!newName) return;
+    if (type === 'url' && !newUrl) return;
+    if (type === 'content' && !content) return;
+
     setLoading(true);
     try {
-      await addSubscription(newName, newUrl);
+      await addSubscription(newName, type === 'url' ? newUrl : '', type === 'content' ? content : undefined);
       toast.success(t('toast.added'));
       setIsOpen(false);
       setNewName('');
       setNewUrl('');
+      setContent('');
+      setType('url');
       onUpdate();
     } catch (e: unknown) {
       toast.error(e instanceof Error ? e.message : String(e));
@@ -72,10 +81,27 @@ export function SubscriptionList({ subscriptions, onUpdate, isLoading = false }:
                 <label>{t('nameLabel')}</label>
                 <Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="e.g. My Airport" />
               </div>
-              <div className="grid gap-2">
-                <label>{t('urlLabel')}</label>
-                <Input value={newUrl} onChange={(e) => setNewUrl(e.target.value)} placeholder="https://..." />
-              </div>
+
+              <Tabs value={type} onValueChange={(v) => setType(v as 'url' | 'content')}>
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="url">URL</TabsTrigger>
+                  <TabsTrigger value="content">Content</TabsTrigger>
+                </TabsList>
+                <TabsContent value="url" className="grid gap-2">
+                  <label>{t('urlLabel')}</label>
+                  <Input value={newUrl} onChange={(e) => setNewUrl(e.target.value)} placeholder="https://..." />
+                </TabsContent>
+                <TabsContent value="content" className="grid gap-2">
+                  <label>Content</label>
+                  <Textarea
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    placeholder="Paste node info here..."
+                    className="h-[200px]"
+                  />
+                </TabsContent>
+              </Tabs>
+
               <Button onClick={handleAdd} disabled={loading}>
                 {loading ? t('adding') : t('save')}
               </Button>
@@ -117,8 +143,8 @@ export function SubscriptionList({ subscriptions, onUpdate, isLoading = false }:
               subscriptions.map((sub) => (
                 <TableRow key={sub.id}>
                   <TableCell className="font-medium">{sub.name}</TableCell>
-                  <TableCell className="max-w-[300px] truncate" title={sub.url}>
-                    {sub.url}
+                  <TableCell className="max-w-[300px] truncate" title={sub.url || ''}>
+                    {sub.url || <span className="text-muted-foreground italic">Content Node</span>}
                   </TableCell>
                   <TableCell>
                     <Button variant="ghost" size="icon" onClick={() => handleDelete(sub.id)}>
