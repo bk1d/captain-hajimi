@@ -1,7 +1,8 @@
 # Captain Hajimi
-一个基于 Next.js 与 Supabase 的订阅管理与配置生成应用，支持合并订阅、远程规则、生成持久化链接并匿名下载。
+一个基于 Next.js 与 Supabase 的机场订阅管理与配置生成应用，支持合并订阅、远程规则、生成持久化链接并匿名下载。
 
-本项99%采用 Vibe coding 开发，没有经过严格的测试与验证，仅建议在本地开发与测试环境中使用。
+本项目 99% 采用 Vibe coding 的方式开发，没有经过严格的测试与验证，仅建议在本地开发与测试环境中使用。
+由于我日常使用 Clash 类配置，此格式下在 Stash、OpenClash、Merlin Clash 运行没有问题，替他客户端没有测试过。
 
 订阅后端基于 [subconverter](https://github.com/tindy2013/subconverter)
 
@@ -101,7 +102,3 @@ pnpm start
 - Subconverter 超时：默认已设置 120 秒超时；请确保后端地址可达
 - 公开下载失败：确认链接中携带了正确的 `key`，且 Storage 中存在对应文件
 - 内容型订阅源无法显示 URL：保存内容后系统会为该订阅源生成内部链接，如果仍为空请检查服务端环境变量与 `api/raw` 接口是否正常
-
----
-
-如需二次开发，请先通读本 README，理解 Supabase 初始化与环境变量配置，再进行修改。祝使用愉快！
