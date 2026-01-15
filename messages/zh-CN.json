@@ -139,6 +139,8 @@
     "addDialogTitle": "添加订阅源",
     "nameLabel": "名称",
     "urlLabel": "URL",
+    "contentLabel": "原始内容",
+    "contentDesc": "订阅链接的原始内容（Base64），适用于不同机场订阅限制不同导致无法拉取的情况",
     "save": "保存",
     "adding": "添加中…",
     "table": {

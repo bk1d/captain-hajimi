@@ -84,19 +84,19 @@ export function SubscriptionList({ subscriptions, onUpdate, isLoading = false }:
 
               <Tabs value={type} onValueChange={(v) => setType(v as 'url' | 'content')}>
                 <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="url">URL</TabsTrigger>
-                  <TabsTrigger value="content">Content</TabsTrigger>
+                  <TabsTrigger value="url">{t('urlLabel')}</TabsTrigger>
+                  <TabsTrigger value="content">{t('contentLabel')}</TabsTrigger>
                 </TabsList>
                 <TabsContent value="url" className="grid gap-2">
                   <label>{t('urlLabel')}</label>
                   <Input value={newUrl} onChange={(e) => setNewUrl(e.target.value)} placeholder="https://..." />
                 </TabsContent>
                 <TabsContent value="content" className="grid gap-2">
-                  <label>Content</label>
+                  <label>{t('contentLabel')}</label>
                   <Textarea
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
-                    placeholder="Paste node info here..."
+                    placeholder={t('contentDesc')}
                     className="h-[200px]"
                   />
                 </TabsContent>

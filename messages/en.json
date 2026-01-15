@@ -139,6 +139,8 @@
     "addDialogTitle": "Add Subscription",
     "nameLabel": "Name",
     "urlLabel": "URL",
+    "contentLabel": "Subscription Content (Base64-encoded)",
+    "contentDesc": "The raw content of the subscription link (Base64-encoded) may be inaccessible due to varying subscription restrictions across different airports.",
     "save": "Save",
     "adding": "Adding...",
     "table": {
