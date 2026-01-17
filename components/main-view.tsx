@@ -37,25 +37,57 @@ export function MainView({
   const [configs, setConfigs] = useState<GeneratedConfig[]>(initialConfigs);
   const [backends, setBackends] = useState<BackendUrl[]>(initialBackends);
   const [remoteConfigs, setRemoteConfigs] = useState<RemoteConfig[]>(initialRemoteConfigs);
-  const [loading, setLoading] = useState(false);
 
-  const refreshData = async () => {
-    setLoading(true);
+  const [loadingSubscriptions, setLoadingSubscriptions] = useState(false);
+  const [loadingConfigs, setLoadingConfigs] = useState(false);
+  const [loadingBackends, setLoadingBackends] = useState(false);
+  const [loadingRemoteConfigs, setLoadingRemoteConfigs] = useState(false);
+
+  const refreshSubscriptions = async () => {
+    setLoadingSubscriptions(true);
     try {
-      const [subs, confs, backs, remotes] = await Promise.all([
-        getSubscriptions(),
-        getGeneratedConfigs(),
-        getBackendUrls(),
-        getRemoteConfigs()
-      ]);
+      const subs = await getSubscriptions();
       setSubscriptions(subs);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoadingSubscriptions(false);
+    }
+  };
+
+  const refreshConfigs = async () => {
+    setLoadingConfigs(true);
+    try {
+      const confs = await getGeneratedConfigs();
       setConfigs(confs);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoadingConfigs(false);
+    }
+  };
+
+  const refreshBackends = async () => {
+    setLoadingBackends(true);
+    try {
+      const backs = await getBackendUrls();
       setBackends(backs);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoadingBackends(false);
+    }
+  };
+
+  const refreshRemoteConfigs = async () => {
+    setLoadingRemoteConfigs(true);
+    try {
+      const remotes = await getRemoteConfigs();
       setRemoteConfigs(remotes);
     } catch (e) {
       console.error(e);
     } finally {
-      setLoading(false);
+      setLoadingRemoteConfigs(false);
     }
   };
 
@@ -74,24 +106,30 @@ export function MainView({
             subscriptions={subscriptions}
             backends={backends}
             remoteConfigs={remoteConfigs}
-            onConfigGenerated={refreshData}
+            onConfigGenerated={refreshConfigs}
           />
         </TabsContent>
 
         <TabsContent value="subscriptions" className="space-y-4">
-          <SubscriptionList subscriptions={subscriptions} onUpdate={refreshData} isLoading={loading} />
+          <SubscriptionList
+            subscriptions={subscriptions}
+            onUpdate={refreshSubscriptions}
+            isLoading={loadingSubscriptions}
+          />
         </TabsContent>
 
         <TabsContent value="history" className="space-y-4">
-          <GeneratedList configs={configs} onUpdate={refreshData} isLoading={loading} />
+          <GeneratedList configs={configs} onUpdate={refreshConfigs} isLoading={loadingConfigs} />
         </TabsContent>
 
         <TabsContent value="settings" className="space-y-4">
           <Settings
             backends={backends}
             remoteConfigs={remoteConfigs}
-            onUpdate={refreshData}
-            isLoading={loading}
+            onBackendsUpdate={refreshBackends}
+            onRemoteConfigsUpdate={refreshRemoteConfigs}
+            loadingBackends={loadingBackends}
+            loadingRemoteConfigs={loadingRemoteConfigs}
           />
         </TabsContent>
       </Tabs>

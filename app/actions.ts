@@ -218,6 +218,159 @@ export async function deleteGeneratedConfig(id: string, filename: string) {
     if (error) throw new Error(error.message);
 }
 
+export async function refreshGeneratedConfig(id: string) {
+    const supabase = await createClient();
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+        throw new Error('Unauthorized');
+    }
+
+    const { data: existing, error: existingError } = await supabase
+        .from('generated_configs')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+    if (existingError || !existing) {
+        throw new Error('Config not found');
+    }
+
+    const params = existing.params as GenerateConfigParams;
+    const {
+        backendUrl,
+        target,
+        urls,
+        configUrl,
+        exclude,
+        include,
+        advanced,
+        customParams,
+    } = params;
+
+    if (!backendUrl || !target || !urls || urls.length === 0) {
+        throw new Error('Invalid stored parameters');
+    }
+
+    const joinedUrls = urls.join('|');
+    const searchParams = new URLSearchParams();
+    searchParams.set('target', target);
+    searchParams.set('url', joinedUrls);
+
+    if (configUrl) searchParams.set('config', configUrl);
+    if (exclude) searchParams.set('exclude', exclude);
+    if (include) searchParams.set('include', include);
+
+    if (advanced) {
+        if (advanced.emoji) searchParams.set('emoji', 'true');
+        if (advanced.udp) searchParams.set('udp', 'true');
+        if (advanced.tfo) searchParams.set('tfo', 'true');
+        if (advanced.scv) searchParams.set('scv', 'true');
+        if (advanced.expand) searchParams.set('expand', 'true');
+    }
+
+    if (customParams) {
+        Object.entries(customParams).forEach(([key, value]) => {
+            if (key && value) {
+                searchParams.set(key, value);
+            }
+        });
+    }
+
+    let cleanBackend = backendUrl.trim();
+
+    const queryIndex = cleanBackend.indexOf('?');
+    if (queryIndex !== -1) {
+        cleanBackend = cleanBackend.slice(0, queryIndex);
+    }
+
+    if (cleanBackend.endsWith('/')) {
+        cleanBackend = cleanBackend.slice(0, -1);
+    }
+
+    if (cleanBackend.endsWith('/sub')) {
+        cleanBackend = cleanBackend.slice(0, -4);
+    }
+
+    const finalUrl = `${cleanBackend}/sub?${searchParams.toString()}`;
+
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 120000);
+
+        try {
+            const res = await fetch(finalUrl, {
+                headers: {
+                    'User-Agent':
+                        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                },
+                signal: controller.signal,
+            });
+            clearTimeout(timeoutId);
+
+            if (!res.ok) {
+                const text = await res.text();
+                throw new Error(`Backend Error (${res.status}): ${text.slice(0, 100)}`);
+            }
+            const content = await res.text();
+
+            const fileExt = target === 'clash' ? 'yaml' : 'txt';
+            const newStorageFileName = `${nanoid()}.${fileExt}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from('configs')
+                .upload(newStorageFileName, content, {
+                    contentType: 'text/plain; charset=utf-8',
+                    upsert: false,
+                });
+
+            if (uploadError) throw new Error(`Upload failed: ${uploadError.message}`);
+
+            const { error: removeError } = await supabase.storage
+                .from('configs')
+                .remove([existing.filename]);
+            if (removeError) {
+                console.error('Storage delete error (refresh):', removeError);
+            }
+
+            const { data: updated, error: updateError } = await supabase
+                .from('generated_configs')
+                .update({
+                    filename: newStorageFileName,
+                    params,
+                    created_at: new Date().toISOString(),
+                })
+                .eq('id', id)
+                .select()
+                .single();
+
+            if (updateError) throw new Error(`DB Save failed: ${updateError.message}`);
+
+            return updated;
+        } catch (fetchError) {
+            clearTimeout(timeoutId);
+            if (fetchError instanceof Error) {
+                if (fetchError.name === 'AbortError') {
+                    throw new Error(
+                        'Backend Connection Timeout: The request took too long to respond. Please try a different backend.'
+                    );
+                }
+                if (fetchError.message.includes('fetch failed')) {
+                    throw new Error(
+                        `Backend Connection Failed: Unable to reach ${cleanBackend}. Please check the URL or try a different backend.`
+                    );
+                }
+            }
+            throw fetchError;
+        }
+    } catch (e) {
+        console.error('Refresh Config Error:', e);
+        throw new Error(e instanceof Error ? e.message : String(e));
+    }
+}
+
 export async function generateAndSaveConfig(params: GenerateConfigParams) {
     const supabase = await createClient();
     const {

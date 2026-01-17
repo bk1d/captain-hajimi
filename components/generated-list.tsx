@@ -1,6 +1,6 @@
 'use client';
 
-import { Copy, Trash2, Info } from 'lucide-react';
+import { Copy, Trash2, Info, RefreshCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { GeneratedConfig, deleteGeneratedConfig } from '@/app/actions';
+import { GeneratedConfig, deleteGeneratedConfig, refreshGeneratedConfig } from '@/app/actions';
 import { useTranslations } from 'next-intl';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -36,6 +36,16 @@ export function GeneratedList({ configs, onUpdate, isLoading = false }: Generate
     try {
       await deleteGeneratedConfig(id, filename);
       toast.success(t('deleted'));
+      onUpdate();
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : String(e));
+    }
+  };
+
+  const handleRefresh = async (id: string) => {
+    try {
+      await refreshGeneratedConfig(id);
+      toast.success(t('refreshed'));
       onUpdate();
     } catch (e: unknown) {
       toast.error(e instanceof Error ? e.message : String(e));
@@ -116,6 +126,9 @@ export function GeneratedList({ configs, onUpdate, isLoading = false }: Generate
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
+                      <Button variant="ghost" size="icon" onClick={() => handleRefresh(config.id)}>
+                        <RefreshCcw className="h-4 w-4" />
+                      </Button>
                       <Dialog>
                         <DialogTrigger asChild>
                           <Button variant="ghost" size="icon">

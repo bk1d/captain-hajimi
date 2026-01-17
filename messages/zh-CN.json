@@ -200,6 +200,7 @@
     "copied": "已复制",
     "confirmDelete": "确定要删除此配置吗？该操作无法撤销。",
     "deleted": "配置已删除",
+    "refreshed": "配置已刷新",
     "details": {
       "title": "配置详情",
       "createdAtPrefix": "创建于",

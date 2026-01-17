@@ -20,11 +20,20 @@ import { Skeleton } from '@/components/ui/skeleton';
 interface SettingsProps {
   backends: BackendUrl[];
   remoteConfigs: RemoteConfig[];
-  onUpdate: () => void;
-  isLoading?: boolean;
+  onBackendsUpdate: () => void;
+  onRemoteConfigsUpdate: () => void;
+  loadingBackends?: boolean;
+  loadingRemoteConfigs?: boolean;
 }
 
-export function Settings({ backends, remoteConfigs, onUpdate, isLoading = false }: SettingsProps) {
+export function Settings({
+  backends,
+  remoteConfigs,
+  onBackendsUpdate,
+  onRemoteConfigsUpdate,
+  loadingBackends = false,
+  loadingRemoteConfigs = false
+}: SettingsProps) {
   const t = useTranslations('Settings');
 
   return (
@@ -47,10 +56,10 @@ export function Settings({ backends, remoteConfigs, onUpdate, isLoading = false 
         items={backends}
         onAdd={addBackendUrl}
         onDelete={deleteBackendUrl}
-        onUpdate={onUpdate}
+        onUpdate={onBackendsUpdate}
         placeholderName={t('backend.placeholderName')}
         placeholderUrl={t('backend.placeholderUrl')}
-        isLoading={isLoading}
+        isLoading={loadingBackends}
       />
 
       <ResourceManager
@@ -71,10 +80,10 @@ export function Settings({ backends, remoteConfigs, onUpdate, isLoading = false 
         items={remoteConfigs}
         onAdd={addRemoteConfig}
         onDelete={deleteRemoteConfig}
-        onUpdate={onUpdate}
+        onUpdate={onRemoteConfigsUpdate}
         placeholderName={t('remoteConfig.placeholderName')}
         placeholderUrl={t('remoteConfig.placeholderUrl')}
-        isLoading={isLoading}
+        isLoading={loadingRemoteConfigs}
       />
     </div>
   );

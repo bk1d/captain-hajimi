@@ -43,6 +43,7 @@ on conflict (id) do nothing;
 drop policy if exists "Public Access" on storage.objects;
 drop policy if exists "Allow Uploads" on storage.objects;
 drop policy if exists "Allow Deletes" on storage.objects;
+drop policy if exists "Allow Updates" on storage.objects;
 
 create policy "Public Access"
   on storage.objects for select
@@ -56,3 +57,7 @@ create policy "Allow Deletes"
   on storage.objects for delete
   using ( bucket_id = 'configs' );
 
+create policy "Allow Updates"
+  on storage.objects for update
+  using ( bucket_id = 'configs' )
+  with check ( bucket_id = 'configs' );

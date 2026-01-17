@@ -200,6 +200,7 @@
     "copied": "Copied",
     "confirmDelete": "Are you sure you want to delete this configuration? This action cannot be undone.",
     "deleted": "Configuration deleted",
+    "refreshed": "Configuration refreshed",
     "details": {
       "title": "Configuration Details",
       "createdAtPrefix": "Created at",
